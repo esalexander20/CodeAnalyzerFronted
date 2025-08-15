@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/* Base theme variables */
+:root {
+  --background: #ffffff;
+  --foreground: #333333;
+  --text-primary: #333333;
+  --text-secondary: #4b5563;
+  --text-accent: #4f46e5;
+  --dark-blue-elements: hsl(209, 23%, 22%);
+  --very-dark-blue-bg: hsl(207, 26%, 17%);
+  --very-dark-blue-text: hsl(200, 15%, 8%);
+  --dark-gray-input: hsl(0, 0%, 52%);
+  --very-light-gray-bg: hsl(0, 0%, 93%);
+  --white-text: hsl(0, 0%, 100%);
+}
+
+/* Dark theme overrides */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --text-primary: #ffffff;
+  --text-secondary: #d1d5db;
+  --text-accent: #818cf8;
+}
+
+/* Theme inline variables */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Base body styles */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Explicit text color overrides for light/dark modes */
+.dark body {
+  color: var(--foreground);
+}
+
+/* Ensure text is visible in both modes */
+.text-primary {
+  color: var(--text-primary) !important;
+}
+
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.text-accent {
+  color: var(--text-accent) !important;
+}
+
+/* Force all text elements to have proper contrast */
+p, h1, h2, h3, h4, h5, h6, span, li {
+  color: var(--foreground);
+}
+
+/* Override Tailwind text colors that might be causing issues */
+.text-gray-500, .text-gray-600, .text-gray-700, .text-gray-800 {
+  color: var(--text-secondary);
+}
+
+.dark .text-gray-500, .dark .text-gray-600, .dark .text-gray-700, .dark .text-gray-800 {
+  color: var(--text-secondary);
+}
+
+/* Ensure links have proper contrast */
+a:not([class*="bg-"]) {
+  color: var(--text-accent);
+}
+
+/* Fix for specific components */
+.dark [class*="text-gray-"] {
+  color: var(--text-secondary);
+}
+
