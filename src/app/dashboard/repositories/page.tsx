@@ -4,18 +4,32 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import RepositoryCard from '@/components/repository/RepositoryCard';
 import RepositoryForm from '@/components/repository/RepositoryForm';
-import { AnalysisResponse, Repository } from '@/types/repository';
+import { Repository } from '@/types/repository';
 
-// Empty array for repositories
-const emptyRepositories: Repository[] = [];
+// Repository types are imported from types
 
 export default function RepositoriesPage() {
   const { user } = useAuth();
-  const [repositories, setRepositories] = useState<any[]>([]);
+  const [repositories, setRepositories] = useState<Repository[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Define the extended repository type with analyses
+  interface RepositoryWithAnalyses extends Repository {
+    analyses?: Array<{
+      id: string;
+      createdAt: string;
+      code_quality: number;
+      code_structure?: string;
+      performance?: string;
+      security?: string;
+      best_practices?: string;
+      bugs_found?: number;
+      recommendations?: string[];
+    }>;
+  }
   
   // Fetch repositories using our API endpoint
   useEffect(() => {
@@ -52,10 +66,10 @@ export default function RepositoriesPage() {
         
         // Format the repositories from the database
         if (Array.isArray(data)) {
-          const formattedRepos = data.map((repo: any) => {
+          const formattedRepos = data.map((repo: RepositoryWithAnalyses) => {
             // Get the latest analysis if available
             const latestAnalysis = repo.analyses && repo.analyses.length > 0 
-              ? repo.analyses.sort((a: any, b: any) => 
+              ? repo.analyses.sort((a, b) => 
                   new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] 
               : null;
               
@@ -77,9 +91,9 @@ export default function RepositoriesPage() {
           console.error('API response is not an array:', data);
           setRepositories([]);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching repositories:', err);
-        setError(err.message || 'Failed to load repositories');
+        setError(err instanceof Error ? err.message : 'Failed to load repositories');
         setRepositories([]);
       } finally {
         setIsLoading(false);
@@ -90,7 +104,7 @@ export default function RepositoriesPage() {
   }, [user?.id]);
   
   // Handle successful analysis completion
-  const handleAnalysisComplete = async (analysis: AnalysisResponse) => {
+  const handleAnalysisComplete = async () => {
     // Refresh repositories list
     if (user?.id) {
       try {
@@ -113,9 +127,9 @@ export default function RepositoriesPage() {
         console.log('Repositories refreshed after analysis:', data);
         
         if (Array.isArray(data)) {
-          const formattedRepos = data.map((repo: any) => {
+          const formattedRepos = data.map((repo: RepositoryWithAnalyses) => {
             const latestAnalysis = repo.analyses && repo.analyses.length > 0 
-              ? repo.analyses.sort((a: any, b: any) => 
+              ? repo.analyses.sort((a, b) => 
                   new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] 
               : null;
               
@@ -140,7 +154,7 @@ export default function RepositoriesPage() {
   };
 
   // Filter repositories based on search term and status filter
-  const filteredRepositories = repositories.filter((repo: any) => {
+  const filteredRepositories = repositories.filter((repo) => {
     const matchesSearch = repo.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           repo.owner?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || repo.status === statusFilter;

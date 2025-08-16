@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+// Route handler for GET requests
+export async function GET(request: NextRequest) {
   try {
-    const id = params.id;
+    // Get the id from the URL
+    const id = request.url.split('/').pop();
     
     if (!id) {
       return NextResponse.json(
@@ -70,10 +69,10 @@ export async function GET(
     
     return NextResponse.json(analysis);
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching analysis:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch analysis' },
+      { error: error instanceof Error ? error.message : 'Failed to fetch analysis' },
       { status: 500 }
     );
   }

@@ -135,9 +135,9 @@ export default function ReportDetailPage() {
         
         setReport(apiReport);
         setIsLoading(false);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error fetching report:', error);
-        setError(error.message || 'Failed to load report data');
+        setError(error instanceof Error ? error.message : 'Failed to load report data');
         setIsLoading(false);
       }
     };

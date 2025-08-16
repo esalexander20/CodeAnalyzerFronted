@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(repositories);
     
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('Error fetching repositories:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to fetch repositories' },
+      { error: error.message || 'Failed to fetch repositories' },
       { status: 500 }
     );
   }
@@ -64,10 +64,10 @@ export async function PUT(request: NextRequest) {
     console.log('Repositories with analyses:', repositoriesWithAnalyses);
     return NextResponse.json(repositoriesWithAnalyses);
     
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('Error fetching repositories:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to fetch repositories' },
+      { error: error.message || 'Failed to fetch repositories' },
       { status: 500 }
     );
   }

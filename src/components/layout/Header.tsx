@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface HeaderProps {
@@ -9,7 +9,6 @@ interface HeaderProps {
 }
 
 export default function Header({ isLoggedIn = false, userName = '' }: HeaderProps) {
-  const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
 

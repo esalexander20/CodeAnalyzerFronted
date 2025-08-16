@@ -147,14 +147,18 @@ export default function RepositoryForm({ onAnalysisComplete }: RepositoryFormPro
       if (onAnalysisComplete) {
         onAnalysisComplete(analysisData);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Analysis error:', err);
       
       // Display a user-friendly error message
-      if (err.message.includes('Failed to fetch') || err.name === 'TypeError') {
-        setError('Could not connect to the analysis server. Please check if the backend is running.');
+      if (err instanceof Error) {
+        if (err.message.includes('Failed to fetch') || err.name === 'TypeError') {
+          setError('Could not connect to the analysis server. Please check if the backend is running.');
+        } else {
+          setError(err.message || 'Failed to analyze repository. Please try again.');
+        }
       } else {
-        setError(err.message || 'Failed to analyze repository. Please try again.');
+        setError('Failed to analyze repository. Please try again.');
       }
     } finally {
       setIsLoading(false);

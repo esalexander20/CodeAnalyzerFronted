@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, SubmitHandler } from "react-hook-form";
 import {
   Disclosure,
   Transition,
@@ -15,7 +15,7 @@ export function PopupWidget() {
     reset,
     control,
     formState: { errors, isSubmitSuccessful, isSubmitting },
-  } = useForm({
+  } = useForm<FormValues>({
     mode: "onTouched",
   });
 
@@ -24,7 +24,18 @@ export function PopupWidget() {
 
   const userName = useWatch({ control, name: "name", defaultValue: "Someone" });
 
-  const onSubmit = async (data: any, e: any) => {
+  // Define form data type for the submission
+  type FormValues = {
+    apikey: string;
+    subject: string;
+    from_name: string;
+    botcheck?: boolean;
+    name: string;
+    email: string;
+    message: string;
+  };
+
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     console.log(data);
     await fetch("https://api.web3forms.com/submit", {
       method: "POST",
@@ -35,11 +46,10 @@ export function PopupWidget() {
       body: JSON.stringify(data, null, 2),
     })
       .then(async (response) => {
-        let json = await response.json();
+        const json = await response.json();
         if (json.success) {
           setIsSuccess(true);
           setMessage(json.message);
-          e.target.reset();
           reset();
         } else {
           setIsSuccess(false);

@@ -1,5 +1,4 @@
-import { createServerClient } from '@/lib/supabase-server';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase-server';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -8,9 +7,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name } = body;
 
-    // Create a Supabase client with the cookies
-    const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    // Create a Supabase client
+    const supabase = await createClient();
 
     // Get the current session
     const { data: { session } } = await supabase.auth.getSession();

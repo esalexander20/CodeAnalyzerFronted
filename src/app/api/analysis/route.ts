@@ -81,10 +81,10 @@ export async function POST(request: NextRequest) {
       analysis: savedAnalysis
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error saving analysis:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to save analysis' },
+      { error: error instanceof Error ? error.message : 'Failed to save analysis' },
       { status: 500 }
     );
   }
@@ -107,10 +107,10 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(analyses);
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching analyses:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch analyses' },
+      { error: error instanceof Error ? error.message : 'Failed to fetch analyses' },
       { status: 500 }
     );
   }

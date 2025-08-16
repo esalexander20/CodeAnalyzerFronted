@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import React from "react";
 import { Container } from "@/components/home/Container";
 
@@ -21,7 +21,7 @@ export const Testimonials = () => {
                 ))}
               </div>
               <p className="text-xl leading-normal mb-6 text-gray-700 dark:text-gray-300">
-                "CodeAnalyzer has completely transformed our development workflow. The <Mark>automated code reviews</Mark> have caught critical issues that would have made it to production otherwise."
+                &quot;CodeAnalyzer has completely transformed our development workflow. The <Mark>automated code reviews</Mark> have caught critical issues that would have made it to production otherwise.&quot;
               </p>
             </div>
 
@@ -43,7 +43,7 @@ export const Testimonials = () => {
                 ))}
               </div>
               <p className="text-xl leading-normal mb-6 text-gray-700 dark:text-gray-300">
-                "The <Mark>security vulnerability</Mark> detection has been invaluable for our team. We've reduced our security incidents by 78% since implementing CodeAnalyzer."
+                &quot;The <Mark>security vulnerability</Mark> detection has been invaluable for our team. We&apos;ve reduced our security incidents by 78% since implementing CodeAnalyzer.&quot;
               </p>
             </div>
 
@@ -65,7 +65,7 @@ export const Testimonials = () => {
                 ))}
               </div>
               <p className="text-xl leading-normal mb-6 text-gray-700 dark:text-gray-300">
-                "Our team's productivity has increased by 40% since we started using CodeAnalyzer. The <Mark>AI-powered</Mark> suggestions are like having an expert reviewer available 24/7."
+                &quot;Our team&apos;s productivity has increased by 40% since we started using CodeAnalyzer. The <Mark>AI-powered</Mark> suggestions are like having an expert reviewer available 24/7.&quot;
               </p>
             </div>
 
@@ -82,7 +82,7 @@ export const Testimonials = () => {
 };
 
 interface AvatarProps {
-  image: any;
+  image: StaticImageData;
   name: string;
   title: string;
 }

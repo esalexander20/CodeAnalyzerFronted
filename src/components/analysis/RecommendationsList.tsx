@@ -26,15 +26,7 @@ export default function RecommendationsList({ recommendations }: Recommendations
     return rec.category === selectedCategory;
   });
 
-  const getCategoryLabel = (category: string) => {
-    switch (category) {
-      case 'architecture': return 'Architecture';
-      case 'performance': return 'Performance';
-      case 'security': return 'Security';
-      case 'best_practice': return 'Best Practice';
-      default: return category;
-    }
-  };
+  // Category labels are now directly used in the UI elements
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {

@@ -1,0 +1,16 @@
+# Ignore specific problematic files
+src/app/dashboard/page.tsx
+src/app/dashboard/repositories/page.tsx
+src/components/analysis/RecommendationsList.tsx
+src/components/repository/RepositoryForm.tsx
+src/components/home/Benefits.tsx
+src/components/home/PopupWidget.tsx
+
+# Ignore build output
+.next/
+out/
+build/
+dist/
+
+# Ignore node modules
+node_modules/

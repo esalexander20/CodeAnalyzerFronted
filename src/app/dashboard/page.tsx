@@ -7,24 +7,46 @@ import AnalysisResults from '@/components/repository/AnalysisResults';
 import { AnalysisResponse, Repository } from '@/types/repository';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Empty array for repositories
-const emptyRepositories: Repository[] = [];
+// Repository type is imported from types
 
 export default function DashboardPage() {
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [analysisResults, setAnalysisResults] = useState<AnalysisResponse | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending'>('all');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // State for loading and error handling
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
+  // Loading and error UI components
+  const LoadingSpinner = () => (
+    <div className="flex justify-center items-center py-12">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
+    </div>
+  );
+  
+  const ErrorMessage = () => (
+    <div className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
+      <div className="flex">
+        <div className="flex-shrink-0">
+          <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <div className="ml-3">
+          <p className="text-sm text-red-700">{errorMessage}</p>
+        </div>
+      </div>
+    </div>
+  );
   const { user } = useAuth(); // Get authenticated user from context
   
-  // Load repositories from the database on component mount
+  // Load repositories from the database when user changes
   useEffect(() => {
     const fetchRepositories = async () => {
       try {
-        setIsLoading(true);
-        setError(null);
+        setIsLoadingData(true);
+        setErrorMessage(null);
         
         // Get the authenticated user ID from context or localStorage
         const loggedInUserId = user?.id || localStorage.getItem('userId');
@@ -51,10 +73,24 @@ export default function DashboardPage() {
         // Check if data is an array before mapping
         if (Array.isArray(data)) {
           // Format the repositories from the database
-          const formattedRepos = data.map((repo: any) => {
+          interface RepositoryWithAnalyses extends Repository {
+            analyses?: Array<{
+              id: string;
+              createdAt: string;
+              code_quality: number;
+              code_structure?: string;
+              performance?: string;
+              security?: string;
+              best_practices?: string;
+              bugs_found?: number;
+              recommendations?: string[];
+            }>;
+          }
+          
+          const formattedRepos = data.map((repo: RepositoryWithAnalyses) => {
             // Get the latest analysis if available
             const latestAnalysis = repo.analyses && repo.analyses.length > 0 
-              ? repo.analyses.sort((a: any, b: any) => 
+              ? repo.analyses.sort((a, b) => 
                   new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] 
               : null;
               
@@ -77,21 +113,24 @@ export default function DashboardPage() {
           console.error('API response is not an array:', data);
           setRepositories([]);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching repositories:', err);
-        setError(err.message || 'Failed to load repositories');
+        setErrorMessage(err instanceof Error ? err.message : 'Failed to load repositories');
         setRepositories([]); // Empty array on error
       } finally {
-        setIsLoading(false);
+        setIsLoadingData(false);
       }
     };
     
     fetchRepositories();
-  }, []);
+  }, [user]);
 
   return (
     <div className="py-6">
         <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        
+        {isLoadingData && <LoadingSpinner />}
+        {errorMessage && <ErrorMessage />}
         
         <div className="mt-6">
           <RepositoryForm onAnalysisComplete={(analysis) => {
