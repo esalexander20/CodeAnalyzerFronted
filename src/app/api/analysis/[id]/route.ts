@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Skip static generation for this route
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Route handler for GET requests
 export async function GET(request: NextRequest) {
   try {
@@ -17,20 +21,38 @@ export async function GET(request: NextRequest) {
     console.log('Fetching analysis with ID:', id);
     
     // First try to find the repository with this ID
-    const repository = await prisma.repository.findUnique({
-      where: { id }
-    });
+    let repository;
+    try {
+      repository = await prisma.repository.findUnique({
+        where: { id }
+      });
+    } catch (err) {
+      console.error('Error finding repository:', err);
+      return NextResponse.json(
+        { error: 'Database error when finding repository' },
+        { status: 500 }
+      );
+    }
     
     if (repository) {
       // If we found a repository, get its latest analysis
-      const analyses = await prisma.analysis.findMany({
-        where: {
-          repository_url: repository.url
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      });
+      let analyses;
+      try {
+        analyses = await prisma.analysis.findMany({
+          where: {
+            repository_url: repository.url
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        });
+      } catch (err) {
+        console.error('Error finding analyses:', err);
+        return NextResponse.json(
+          { error: 'Database error when finding analyses' },
+          { status: 500 }
+        );
+      }
       
       if (analyses && analyses.length > 0) {
         const analysisData = analyses[0];

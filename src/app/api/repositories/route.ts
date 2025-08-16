@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { ENABLE_DEBUG_LOGGING } from '@/lib/config';
 
+// Skip static generation for this route
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 interface Repository {
   id: string;
   createdAt: Date;

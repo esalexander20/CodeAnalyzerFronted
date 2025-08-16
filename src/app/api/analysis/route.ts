@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AnalysisResponse } from '@/types/repository';
 import { prisma } from '@/lib/prisma';
 
+// Skip static generation for this route
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

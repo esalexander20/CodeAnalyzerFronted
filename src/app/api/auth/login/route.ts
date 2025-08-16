@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByEmail, validatePassword } from '@/lib/db';
 
+// Skip static generation for this route
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
