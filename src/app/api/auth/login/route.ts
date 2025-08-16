@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByEmail, validatePassword } from '@/lib/db';
 
 // Skip static generation for this route
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+
+// Disable static optimization
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
+// Prevent import during build time
+let getUserByEmail: any;
+let validatePassword: any;
+if (process.env.NEXT_PHASE !== 'phase-production-build') {
+  // Only import when not in build phase
+  const db = require('@/lib/db');
+  getUserByEmail = db.getUserByEmail;
+  validatePassword = db.validatePassword;
+}
 
 export async function POST(request: NextRequest) {
   try {

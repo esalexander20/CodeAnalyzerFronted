@@ -1,9 +1,19 @@
-import { createClient } from '@/lib/supabase-server';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Skip static generation for this route
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+
+// Disable static optimization
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
+// Prevent import during build time
+let createClient: any;
+if (process.env.NEXT_PHASE !== 'phase-production-build') {
+  // Only import when not in build phase
+  createClient = require('@/lib/supabase-server').createClient;
+}
 
 export async function POST(request: NextRequest) {
   try {

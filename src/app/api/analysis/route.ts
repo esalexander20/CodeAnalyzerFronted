@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AnalysisResponse } from '@/types/repository';
-import { prisma } from '@/lib/prisma';
 
 // Skip static generation for this route
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+
+// Disable static optimization
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
+// Prevent import during build time
+let prisma: any;
+if (process.env.NEXT_PHASE !== 'phase-production-build') {
+  // Only import prisma when not in build phase
+  prisma = require('@/lib/prisma').prisma;
+}
 
 export async function POST(request: NextRequest) {
   try {
