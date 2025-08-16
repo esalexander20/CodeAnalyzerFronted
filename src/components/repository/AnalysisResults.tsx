@@ -1,6 +1,7 @@
 'use client';
 
 import { AnalysisResponse } from '@/types/repository';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 interface AnalysisResultsProps {
   analysis: AnalysisResponse | null;
@@ -12,7 +13,8 @@ export default function AnalysisResults({ analysis }: AnalysisResultsProps) {
   }
 
   return (
-    <div className="mt-8 bg-white shadow sm:rounded-lg overflow-hidden">
+    <ErrorBoundary>
+      <div className="mt-8 bg-white shadow sm:rounded-lg overflow-hidden">
       <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
         <h3 className="text-lg leading-6 font-medium text-gray-900">
           Repository Analysis Results
@@ -95,5 +97,6 @@ export default function AnalysisResults({ analysis }: AnalysisResultsProps) {
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

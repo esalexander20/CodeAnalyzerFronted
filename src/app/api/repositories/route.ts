@@ -1,5 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { ENABLE_DEBUG_LOGGING } from '@/lib/config';
+
+interface Repository {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  name: string;
+  owner: string;
+  url: string;
+  lastAnalyzed: Date | null;
+  status: string;
+  score: number | null;
+  userId: string | null;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,7 +32,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(repositories);
     
   } catch (error: unknown) {
-    console.error('Error fetching repositories:', error);
+    if (ENABLE_DEBUG_LOGGING) {
+      console.error('Error fetching repositories:', error);
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to fetch repositories' },
       { status: 500 }
@@ -31,7 +47,9 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
     const { userId } = body;
-    console.log('PUT repositories API called with userId:', userId);
+    if (ENABLE_DEBUG_LOGGING) {
+      console.log('PUT repositories API called with userId:', userId);
+    }
     
     // Get repositories for the user
     const repositories = await prisma.repository.findMany({
@@ -45,7 +63,7 @@ export async function PUT(request: NextRequest) {
     
     // For each repository, fetch its analyses separately
     const repositoriesWithAnalyses = await Promise.all(
-      repositories.map(async (repo) => {
+      repositories.map(async (repo: Repository) => {
         // Find analyses for this repository URL
         const analyses = await prisma.analysis.findMany({
           where: {
@@ -60,12 +78,15 @@ export async function PUT(request: NextRequest) {
       })
     );
     
-    console.log(`Found ${repositories.length} repositories for user ${userId}`);
-    console.log('Repositories with analyses:', repositoriesWithAnalyses);
+    if (ENABLE_DEBUG_LOGGING) {
+      console.log(`Found ${repositories.length} repositories for user ${userId}`);
+    }
     return NextResponse.json(repositoriesWithAnalyses);
     
   } catch (error: unknown) {
-    console.error('Error fetching repositories:', error);
+    if (ENABLE_DEBUG_LOGGING) {
+      console.error('Error fetching repositories:', error);
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to fetch repositories' },
       { status: 500 }
@@ -80,7 +101,9 @@ export async function POST(request: NextRequest) {
     
     // If userId is provided without a repository, it's a fetch request
     if (userId && !repository) {
-      console.log('POST repositories API called with userId for fetching:', userId);
+      if (ENABLE_DEBUG_LOGGING) {
+        console.log('POST repositories API called with userId for fetching:', userId);
+      }
       
       // Get repositories for the user
       const repositories = await prisma.repository.findMany({
@@ -94,7 +117,7 @@ export async function POST(request: NextRequest) {
       
       // For each repository, fetch its analyses separately
       const repositoriesWithAnalyses = await Promise.all(
-        repositories.map(async (repo) => {
+        repositories.map(async (repo: Repository) => {
           // Find analyses for this repository URL
           const analyses = await prisma.analysis.findMany({
             where: {
@@ -109,7 +132,9 @@ export async function POST(request: NextRequest) {
         })
       );
       
-      console.log(`Found ${repositories.length} repositories for user ${userId}`);
+      if (ENABLE_DEBUG_LOGGING) {
+        console.log(`Found ${repositories.length} repositories for user ${userId}`);
+      }
       return NextResponse.json(repositoriesWithAnalyses);
     }
     
@@ -131,7 +156,9 @@ export async function POST(request: NextRequest) {
       // If user doesn't exist but we have a userId from auth, create the user
       if (!userData) {
         try {
-          console.log('Creating new user record for userId:', userId);
+          if (ENABLE_DEBUG_LOGGING) {
+            console.log('Creating new user record for userId:', userId);
+          }
           userData = await prisma.user.create({
             data: {
               id: userId,
@@ -140,9 +167,13 @@ export async function POST(request: NextRequest) {
               password: '' // Empty password since auth is handled by Supabase
             }
           });
-          console.log('Created new user record:', userData);
+          if (ENABLE_DEBUG_LOGGING) {
+            console.log('Created new user record:', userData);
+          }
         } catch (error) {
-          console.error('Error creating user record:', error);
+          if (ENABLE_DEBUG_LOGGING) {
+            console.error('Error creating user record:', error);
+          }
         }
       }
       
@@ -155,7 +186,9 @@ export async function POST(request: NextRequest) {
       });
       
       if (existingRepository) {
-        console.log('Repository already exists for this user:', existingRepository);
+        if (ENABLE_DEBUG_LOGGING) {
+          console.log('Repository already exists for this user:', existingRepository);
+        }
         return NextResponse.json({
           success: false,
           message: 'Repository with this URL already exists',
@@ -183,7 +216,9 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: unknown) {
-    console.error('Error saving repository:', error);
+    if (ENABLE_DEBUG_LOGGING) {
+      console.error('Error saving repository:', error);
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to save repository' },
       { status: 500 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 interface RepositoryCardProps {
   id: string;
@@ -47,7 +48,8 @@ export default function RepositoryCard({
   };
 
   return (
-    <div className="bg-white overflow-hidden shadow rounded-lg">
+    <ErrorBoundary>
+      <div className="bg-white overflow-hidden shadow rounded-lg">
       <div className="px-4 py-5 sm:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -108,5 +110,6 @@ export default function RepositoryCard({
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

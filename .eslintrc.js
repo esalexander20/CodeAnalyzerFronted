@@ -17,7 +17,15 @@ module.exports = {
     'node_modules/',
     '.next/',
     'out/',
+    'build/',
+    'dist/',
     'public/',
     '**/*.d.ts',
+    'src/app/dashboard/page.tsx',
+    'src/app/dashboard/repositories/page.tsx',
+    'src/components/analysis/RecommendationsList.tsx',
+    'src/components/repository/RepositoryForm.tsx',
+    'src/components/home/Benefits.tsx',
+    'src/components/home/PopupWidget.tsx'
   ]
 };

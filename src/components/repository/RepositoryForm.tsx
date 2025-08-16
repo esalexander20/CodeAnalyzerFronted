@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { AnalysisResponse } from '@/types/repository';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL, ENABLE_DEBUG_LOGGING } from '@/lib/config';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 interface RepositoryFormProps {
   onAnalysisComplete: (analysis: AnalysisResponse) => void;
@@ -42,10 +44,12 @@ export default function RepositoryForm({ onAnalysisComplete }: RepositoryFormPro
         return;
       }
       
-      console.log('Using authenticated user ID for analysis:', loggedInUserId);
+      if (ENABLE_DEBUG_LOGGING) {
+        console.log('Using authenticated user ID for analysis:', loggedInUserId);
+      }
       
       // Make actual API call to backend
-      const response = await fetch('http://localhost:8000/analyze', {
+      const response = await fetch(`${API_URL}/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +103,9 @@ export default function RepositoryForm({ onAnalysisComplete }: RepositoryFormPro
           
           // Handle duplicate repository error (409 Conflict)
           if (saveRepoResponse.status === 409) {
-            console.log('Repository already exists:', responseData);
+            if (ENABLE_DEBUG_LOGGING) {
+              console.log('Repository already exists:', responseData);
+            }
             // We'll still show the analysis results but with a warning
             setSuccess('Analysis completed! Note: This repository was already analyzed before.');
             isDuplicate = true; // Mark as duplicate to skip saving analysis
@@ -113,7 +119,9 @@ export default function RepositoryForm({ onAnalysisComplete }: RepositoryFormPro
         
         // Only save the analysis if the repository is not a duplicate
         if (!isDuplicate) {
-          console.log('Saving new analysis with user ID:', loggedInUserId);
+          if (ENABLE_DEBUG_LOGGING) {
+            console.log('Saving new analysis with user ID:', loggedInUserId);
+          }
           
           // Now save the analysis data separately
           const saveAnalysisResponse = await fetch('/api/analysis', {
@@ -131,10 +139,14 @@ export default function RepositoryForm({ onAnalysisComplete }: RepositoryFormPro
             console.warn('Failed to save analysis details to database:', await saveAnalysisResponse.text());
             // Continue even if saving analysis to database fails
           } else {
-            console.log('Analysis details saved to database successfully');
+            if (ENABLE_DEBUG_LOGGING) {
+              console.log('Analysis details saved to database successfully');
+            }
           }
         } else {
-          console.log('Skipping analysis save for duplicate repository');
+          if (ENABLE_DEBUG_LOGGING) {
+            console.log('Skipping analysis save for duplicate repository');
+          }
         }
       } catch (saveErr) {
         console.error('Error saving data to database:', saveErr);
@@ -166,7 +178,8 @@ export default function RepositoryForm({ onAnalysisComplete }: RepositoryFormPro
   };
 
   return (
-    <div className="bg-white shadow sm:rounded-lg">
+    <ErrorBoundary>
+      <div className="bg-white shadow sm:rounded-lg">
       <div className="px-4 py-5 sm:p-6">
         <h3 className="text-lg leading-6 font-medium text-gray-900">Analyze GitHub Repository</h3>
         <div className="mt-2 max-w-xl text-sm text-gray-500">
@@ -237,5 +250,6 @@ export default function RepositoryForm({ onAnalysisComplete }: RepositoryFormPro
         </form>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

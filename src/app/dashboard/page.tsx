@@ -6,6 +6,8 @@ import RepositoryCard from '@/components/repository/RepositoryCard';
 import AnalysisResults from '@/components/repository/AnalysisResults';
 import { AnalysisResponse, Repository } from '@/types/repository';
 import { useAuth } from '@/contexts/AuthContext';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
+import { ENABLE_DEBUG_LOGGING } from '@/lib/config';
 
 // Repository type is imported from types
 
@@ -50,7 +52,9 @@ export default function DashboardPage() {
         
         // Get the authenticated user ID from context or localStorage
         const loggedInUserId = user?.id || localStorage.getItem('userId');
-        console.log('Fetching repositories for authenticated user:', loggedInUserId);
+        if (ENABLE_DEBUG_LOGGING) {
+          console.log('Fetching repositories for authenticated user:', loggedInUserId);
+        }
         
         // Fetch repositories from the API using PUT method
         const response = await fetch('/api/repositories', {
@@ -68,7 +72,9 @@ export default function DashboardPage() {
         }
         
         const data = await response.json();
-        console.log('API response data:', data);
+        if (ENABLE_DEBUG_LOGGING) {
+          console.log('API response data:', data);
+        }
         
         // Check if data is an array before mapping
         if (Array.isArray(data)) {
@@ -107,14 +113,20 @@ export default function DashboardPage() {
             };
           });
           
-          console.log('Formatted repositories with analyses:', formattedRepos);
+          if (ENABLE_DEBUG_LOGGING) {
+            console.log('Formatted repositories with analyses:', formattedRepos);
+          }
           setRepositories(formattedRepos.length > 0 ? formattedRepos : []);
         } else {
-          console.error('API response is not an array:', data);
+          if (ENABLE_DEBUG_LOGGING) {
+            console.error('API response is not an array:', data);
+          }
           setRepositories([]);
         }
       } catch (err: unknown) {
-        console.error('Error fetching repositories:', err);
+        if (ENABLE_DEBUG_LOGGING) {
+          console.error('Error fetching repositories:', err);
+        }
         setErrorMessage(err instanceof Error ? err.message : 'Failed to load repositories');
         setRepositories([]); // Empty array on error
       } finally {
@@ -126,7 +138,8 @@ export default function DashboardPage() {
   }, [user]);
 
   return (
-    <div className="py-6">
+    <ErrorBoundary>
+      <div className="py-6">
         <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
         
         {isLoadingData && <LoadingSpinner />}
@@ -162,7 +175,9 @@ export default function DashboardPage() {
               analyses.unshift(analysis);
               localStorage.setItem('codeAnalyzerAnalyses', JSON.stringify(analyses));
             } catch (err) {
-              console.error('Error saving analysis to localStorage:', err);
+              if (ENABLE_DEBUG_LOGGING) {
+                console.error('Error saving analysis to localStorage:', err);
+              }
             }
           }} />
         </div>
@@ -288,5 +303,6 @@ export default function DashboardPage() {
   </div>
 </div>
     </div>
+    </ErrorBoundary>
   );
 }
