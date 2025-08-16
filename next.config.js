@@ -16,6 +16,16 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  // Output standalone build for Docker
+  output: 'standalone',
+  // Disable static optimization for API routes
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  // External packages that should be treated as server-only
+  serverExternalPackages: ['@prisma/client'],
   webpack: (config, { isServer }) => {
     // If client-side, don't polyfill Node.js modules
     if (!isServer) {
@@ -28,6 +38,13 @@ const nextConfig = {
         tls: false,
         child_process: false,
       };
+    } else {
+      // Handle Prisma in Docker build
+      config.externals.push('_http_common');
+      
+      // Add these to externals to avoid issues with Prisma
+      config.externals.push('@prisma/client');
+      config.externals.push('.prisma/client');
     }
     return config;
   },

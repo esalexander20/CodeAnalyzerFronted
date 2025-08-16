@@ -5,11 +5,18 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+// Disable static optimization
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
 // Route handler for GET requests
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    // Get the id from the URL
-    const id = request.url.split('/').pop();
+    // Get the id from the params
+    const id = params.id;
     
     if (!id) {
       return NextResponse.json(
@@ -78,9 +85,18 @@ export async function GET(request: NextRequest) {
     }
     
     // If we didn't find a repository, try to find the analysis directly
-    const analysis = await prisma.analysis.findUnique({
-      where: { id }
-    });
+    let analysis;
+    try {
+      analysis = await prisma.analysis.findUnique({
+        where: { id }
+      });
+    } catch (err) {
+      console.error('Error finding analysis directly:', err);
+      return NextResponse.json(
+        { error: 'Database error when finding analysis' },
+        { status: 500 }
+      );
+    }
     
     if (!analysis) {
       return NextResponse.json(
